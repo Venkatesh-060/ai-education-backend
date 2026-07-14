@@ -10,6 +10,8 @@ import com.example.backend.dto.ResetPasswordRequest;
 import com.example.backend.jwt.JwtUtil;
 import com.example.backend.model.User;
 import com.example.backend.repository.UserRepo;
+import com.example.backend.dto.RegisterRequest;
+import com.example.backend.dto.RegisterResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,21 +24,6 @@ public class AuthController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    // ================= REGISTER =================
-
-    @PostMapping("/register")
-    public String register(@RequestBody User user) {
-
-        if (userRepo.findByEmail(user.getEmail()) != null) {
-            return "Email Already Exists";
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        userRepo.save(user);
-
-        return "Registration Successful";
-    }
 
     // ================= LOGIN =================
 
@@ -55,7 +42,7 @@ public class AuthController {
 
         String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
 
-        return new LoginResponse(token, user.getRole(),user.getId());
+        return new LoginResponse(token, user.getRole(), user.getId());
     }
 
     // ================= RESET PASSWORD =================
@@ -92,5 +79,28 @@ public class AuthController {
         userRepo.save(user);
 
         return "Password Updated";
+    }
+
+    @PostMapping("/register")
+    public RegisterResponse register(
+            @RequestBody RegisterRequest request) {
+
+        User oldUser = userRepo.findByEmail(request.getEmail());
+
+        if (oldUser != null) {
+            return new RegisterResponse("Email Already Exists");
+        }
+
+        User user = new User();
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
+
+        userRepo.save(user);
+
+        return new RegisterResponse("Registration Successful");
     }
 }

@@ -35,11 +35,19 @@ protected void doFilterInternal(
 
             String token = header.substring(7);
 
+            System.out.println("Token = " + token);
+
             if (JwtUtil.validateToken(token)) {
+
+                System.out.println("Token Valid");
 
                 String email = JwtUtil.getEmail(token);
 
+                System.out.println("Email = " + email);
+
                 var userDetails = service.loadUserByUsername(email);
+
+                System.out.println("Authorities = " + userDetails.getAuthorities());
 
                 UsernamePasswordAuthenticationToken auth =
 

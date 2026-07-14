@@ -40,16 +40,16 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
 
                         .requestMatchers("/api/attendance/mark")
-                        .hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
                         .requestMatchers("/api/attendance/**")
-                        .hasAnyRole("ADMIN", "TEACHER")
+                        .hasAnyRole("ADMIN", "TRAINER")
 
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
                         .requestMatchers("/teacher/**")
-                        .hasAnyRole("ADMIN", "TEACHER")
+                        .hasAnyRole("ADMIN", "TRAINER")
 
                         .requestMatchers("/student/**")
                         .hasAnyRole("ADMIN", "STUDENT")

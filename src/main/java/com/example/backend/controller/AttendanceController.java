@@ -12,7 +12,9 @@ import jakarta.validation.Valid;
 import com.example.backend.dto.AttendanceRequest;
 import com.example.backend.model.Attendance;
 import com.example.backend.repository.AttendanceRepo;
-
+import com.example.backend.repository.UserRepo;
+import com.example.backend.model.User;
+import com.example.backend.dto.AttendanceStats;
 @RestController
 @RequestMapping("/api/attendance")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -21,6 +23,10 @@ public class AttendanceController {
 
         @Autowired
         AttendanceRepo attendanceRepo;
+
+        @Autowired
+        UserRepo userRepo;
+
 
         // MARK ATTENDANCE
 
@@ -138,6 +144,48 @@ public class AttendanceController {
                 attendanceRepo.save(attendance);
 
                 return "Attendance Updated";
+
+        }
+
+        @GetMapping("/all")
+        public List<Attendance> getAllAttendance() {
+                return attendanceRepo.findAll();
+        }
+
+        @GetMapping("/stats")
+        public AttendanceStats getStats() {
+
+                List<User> students = userRepo.findByRole("STUDENT");
+
+                List<Attendance> attendanceList = attendanceRepo.findAll();
+
+                int totalStudents = students.size();
+
+                int present = 0;
+
+                int absent = 0;
+
+                for (Attendance attendance : attendanceList) {
+
+                        if (attendance.getStatus().equalsIgnoreCase("Present")) {
+                                present++;
+                        } else {
+                                absent++;
+                        }
+
+                }
+
+                double percentage = 0;
+
+                if (totalStudents > 0) {
+                        percentage = ((double) present / totalStudents) * 100;
+                }
+
+                return new AttendanceStats(
+                                totalStudents,
+                                present,
+                                absent,
+                                percentage);
 
         }
 

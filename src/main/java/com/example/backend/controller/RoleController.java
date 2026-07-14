@@ -15,11 +15,11 @@ public class RoleController {
 
     }
 
-    @GetMapping("/teacher/dashboard")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
-    public String teacher() {
+    @GetMapping("/trainer/dashboard")
+    @PreAuthorize("hasAnyRole('ADMIN','trainer')")
+    public String trainer() {
 
-        return "Welcome Teacher";
+        return "Welcome Trainer";
 
     }
 
