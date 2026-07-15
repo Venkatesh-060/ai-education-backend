@@ -24,7 +24,6 @@ public class AuthController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-
     // ================= LOGIN =================
 
     @PostMapping("/login")
@@ -42,7 +41,8 @@ public class AuthController {
 
         String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
 
-        return new LoginResponse(token, user.getRole(), user.getId());
+        return new LoginResponse(token, user.getRole(), user.getId(), user.getFirstName(),
+                user.getLastName());
     }
 
     // ================= RESET PASSWORD =================

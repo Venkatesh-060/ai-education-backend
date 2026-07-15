@@ -54,6 +54,9 @@ public class SecurityConfig {
                         .requestMatchers("/student/**")
                         .hasAnyRole("ADMIN", "STUDENT")
 
+                        .requestMatchers("/api/chat/**")
+                        .hasAnyRole("ADMIN","TRAINER","STUDENT")
+
                         .anyRequest()
                         .authenticated())
 
