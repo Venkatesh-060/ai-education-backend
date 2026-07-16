@@ -57,6 +57,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/chat/**")
                         .hasAnyRole("ADMIN","TRAINER","STUDENT")
 
+                        .requestMatchers("/api/whiteboard/**")
+                        .hasAnyRole("TRAINER","STUDENT")
+
                         .anyRequest()
                         .authenticated())
 
