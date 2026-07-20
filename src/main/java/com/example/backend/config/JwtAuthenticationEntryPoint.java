@@ -21,6 +21,9 @@ public class JwtAuthenticationEntryPoint
 
     ) throws IOException {
 
+        System.out.println("401 Unauthorized");
+System.out.println(request.getRequestURI());
+
         response.sendError(
 
                 HttpServletResponse.SC_UNAUTHORIZED,

@@ -27,10 +27,11 @@ protected void doFilterInternal(
         HttpServletResponse response,
         FilterChain filterChain)
         throws ServletException, IOException {
+                System.out.println("JWT FILTER CALLED");
         HttpServletRequest req = (HttpServletRequest) request;
 
         String header = req.getHeader("Authorization");
-
+System.out.println("Header = " + header);
         if (header != null && header.startsWith("Bearer ")) {
 
             String token = header.substring(7);

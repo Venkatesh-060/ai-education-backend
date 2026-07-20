@@ -10,13 +10,13 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableMethodSecurity
@@ -36,15 +36,35 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/session/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
 
+                        // Public APIs
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/session/**").permitAll()
+
+                        // Attendance APIs for Students
                         .requestMatchers("/api/attendance/mark")
                         .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                        .requestMatchers("/api/attendance/**")
+                        .requestMatchers("/api/attendance/update")
+                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+
+                        // Attendance APIs for Admin & Trainer
+                        .requestMatchers("/api/attendance/report")
                         .hasAnyRole("ADMIN", "TRAINER")
 
+                        .requestMatchers("/api/attendance/stats")
+                        .hasAnyRole("ADMIN", "TRAINER")
+
+                        .requestMatchers("/api/attendance/all")
+                        .hasAnyRole("ADMIN", "TRAINER")
+
+                        .requestMatchers("/api/attendance/session/**")
+                        .hasAnyRole("ADMIN", "TRAINER")
+
+                        .requestMatchers("/api/attendance/student/**")
+                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+
+                        // Other APIs
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
@@ -55,10 +75,10 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "STUDENT")
 
                         .requestMatchers("/api/chat/**")
-                        .hasAnyRole("ADMIN","TRAINER","STUDENT")
+                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
                         .requestMatchers("/api/whiteboard/**")
-                        .hasAnyRole("TRAINER","STUDENT")
+                        .hasAnyRole("TRAINER", "STUDENT")
 
                         .anyRequest()
                         .authenticated())
@@ -75,7 +95,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
-
         return config.getAuthenticationManager();
     }
 
@@ -93,24 +112,18 @@ public class SecurityConfig {
                 List.of("http://localhost:5173"));
 
         configuration.setAllowedMethods(
-                List.of(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE"));
+                List.of("GET", "POST", "PUT", "DELETE","OPTIONS"));
 
         configuration.setAllowedHeaders(
                 List.of("*"));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        configuration.setAllowCredentials(true);
 
-        source.registerCorsConfiguration(
-                "/**",
-                configuration);
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
-
-    
-
 }

@@ -13,7 +13,6 @@ public class AttendanceRequest {
 
     private String leaveTime;
 
-    @NotBlank
     private String status;
 
     public AttendanceRequest() {
