@@ -1,87 +1,74 @@
 package com.example.backend.config;
 
-import com.example.backend.jwt.JwtUtil;
-import com.example.backend.service.CustomUserDetailsService;
-
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
+import com.example.backend.jwt.JwtUtil;
+import com.example.backend.service.CustomUserDetailsService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+        
 
-    @Autowired
-    CustomUserDetailsService service;
+        private final CustomUserDetailsService service;
 
-    @Override
-protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain)
-        throws ServletException, IOException {
-                System.out.println("JWT FILTER CALLED");
-        HttpServletRequest req = (HttpServletRequest) request;
-
-        String header = req.getHeader("Authorization");
-System.out.println("Header = " + header);
-        if (header != null && header.startsWith("Bearer ")) {
-
-            String token = header.substring(7);
-
-            System.out.println("Token = " + token);
-
-            if (JwtUtil.validateToken(token)) {
-
-                System.out.println("Token Valid");
-
-                String email = JwtUtil.getEmail(token);
-
-                System.out.println("Email = " + email);
-
-                var userDetails = service.loadUserByUsername(email);
-
-                System.out.println("Authorities = " + userDetails.getAuthorities());
-
-                UsernamePasswordAuthenticationToken auth =
-
-                        new UsernamePasswordAuthenticationToken(
-
-                                userDetails,
-
-                                null,
-
-                                userDetails.getAuthorities()
-
-                        );
-
-                auth.setDetails(
-
-                        new WebAuthenticationDetailsSource()
-
-                                .buildDetails(req)
-
-                );
-
-                SecurityContextHolder
-
-                        .getContext()
-
-                        .setAuthentication(auth);
-
-            }
-
+        public JwtAuthenticationFilter(CustomUserDetailsService service) {
+                this.service = service;
         }
 
-        filterChain.doFilter(request, response);
+        @Override
+        protected void doFilterInternal(
+                        @NonNull HttpServletRequest request,
+                        @NonNull HttpServletResponse response,
+                        @NonNull FilterChain filterChain)
+                        throws ServletException, IOException {
 
-    }
+                String header = request.getHeader("Authorization");
 
+                System.out.println("URI = " + request.getRequestURI());
+                System.out.println("Authorization Header = " + header);
+
+                if (header != null && header.startsWith("Bearer ")) {
+
+                        String token = header.substring(7);
+                                                         System.out.println("Token Valid = " + JwtUtil.validateToken(token));
+
+
+                        if (JwtUtil.validateToken(token)) {
+
+
+                                String email = JwtUtil.getEmail(token);
+                                System.out.println("JWT Email = " + email);
+
+
+                                var userDetails = service.loadUserByUsername(email);
+                                 System.out.println("Authorities = " + userDetails.getAuthorities());
+
+                                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                                userDetails,
+                                                null,
+                                                userDetails.getAuthorities());
+
+                                authentication.setDetails(
+                                                new WebAuthenticationDetailsSource()
+                                                                .buildDetails(request));
+
+                                SecurityContextHolder.getContext()
+                                                .setAuthentication(authentication);
+
+                                                System.out.println("Authentication = "
+                + SecurityContextHolder.getContext().getAuthentication());
+                        }
+                }
+
+                filterChain.doFilter(request, response);
+        }
 }

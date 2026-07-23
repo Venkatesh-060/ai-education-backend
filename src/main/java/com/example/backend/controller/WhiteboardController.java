@@ -1,27 +1,25 @@
 package com.example.backend.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.backend.dto.WhiteboardRequest;
 import com.example.backend.model.Whiteboard;
 import com.example.backend.repository.WhiteboardRepo;
-import org.springframework.security.access.prepost.PreAuthorize;
-import com.example.backend.repository.SessionRepo;
 
 @RestController
 @RequestMapping("/api/whiteboard")
 @CrossOrigin(origins = "http://localhost:5173")
 public class WhiteboardController {
 
-    @Autowired
-    WhiteboardRepo whiteboardRepo;
+    private final WhiteboardRepo whiteboardRepo;
 
-    @Autowired
-    SessionRepo sessionRepo;
+    public WhiteboardController(
+            WhiteboardRepo whiteboardRepo) {
+
+        this.whiteboardRepo = whiteboardRepo;
+    }
 
     @PostMapping("/save")
     public String save(@RequestBody WhiteboardRequest request) {
@@ -60,13 +58,19 @@ public class WhiteboardController {
     }
 
     @PutMapping("/{id}")
-    public String update(@PathVariable String id,
+    public String update(
+            @PathVariable String id,
             @RequestBody WhiteboardRequest request) {
+
+        if (id == null || id.isBlank()) {
+            return "Invalid Id";
+        }
 
         Whiteboard board = whiteboardRepo.findById(id).orElse(null);
 
-        if (board == null)
+        if (board == null) {
             return "Not Found";
+        }
 
         board.setDrawingData(request.getDrawingData());
         board.setToolType(request.getToolType());
@@ -92,8 +96,9 @@ public class WhiteboardController {
 
         board.setDrawingData("[]");
         board.setTimestamp(LocalDateTime.now());
+
         whiteboardRepo.save(board);
+
         return "Whiteboard Cleared";
     }
-
 }

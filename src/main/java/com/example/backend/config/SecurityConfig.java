@@ -1,8 +1,6 @@
 package com.example.backend.config;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,108 +20,123 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    JwtAuthenticationFilter jwtFilter;
+        private final JwtAuthenticationFilter jwtFilter;
+        private final JwtAuthenticationEntryPoint entryPoint;
 
-    @Autowired
-    JwtAuthenticationEntryPoint entryPoint;
+        public SecurityConfig(
+                        JwtAuthenticationFilter jwtFilter,
+                        JwtAuthenticationEntryPoint entryPoint) {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                this.jwtFilter = jwtFilter;
+                this.entryPoint = entryPoint;
+        }
 
-        http
-                .cors(cors -> {})
-                .csrf(csrf -> csrf.disable())
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-                .authorizeHttpRequests(auth -> auth
+                http
+                                .cors(cors -> {
+                                })
+                                .csrf(csrf -> csrf.disable())
 
-                        // Public APIs
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/session/**").permitAll()
+                                .authorizeHttpRequests(auth -> auth
 
-                        // Attendance APIs for Students
-                        .requestMatchers("/api/attendance/mark")
-                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+                                                .requestMatchers("/auth/**").permitAll()
+                                                .requestMatchers("/api/session/**").permitAll()
 
-                        .requestMatchers("/api/attendance/update")
-                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+                                                .requestMatchers("/api/attendance/mark")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                        // Attendance APIs for Admin & Trainer
-                        .requestMatchers("/api/attendance/report")
-                        .hasAnyRole("ADMIN", "TRAINER")
+                                                .requestMatchers("/api/attendance/update")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                        .requestMatchers("/api/attendance/stats")
-                        .hasAnyRole("ADMIN", "TRAINER")
+                                                .requestMatchers("/api/attendance/report")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
-                        .requestMatchers("/api/attendance/all")
-                        .hasAnyRole("ADMIN", "TRAINER")
+                                                .requestMatchers("/api/attendance/stats")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
-                        .requestMatchers("/api/attendance/session/**")
-                        .hasAnyRole("ADMIN", "TRAINER")
+                                                .requestMatchers("/api/attendance/all")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
-                        .requestMatchers("/api/attendance/student/**")
-                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+                                                .requestMatchers("/api/attendance/session/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
-                        // Other APIs
-                        .requestMatchers("/admin/**")
-                        .hasRole("ADMIN")
+                                                .requestMatchers("/api/attendance/student/**")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                        .requestMatchers("/teacher/**")
-                        .hasAnyRole("ADMIN", "TRAINER")
+                                                .requestMatchers("/admin/**")
+                                                .hasRole("ADMIN")
 
-                        .requestMatchers("/student/**")
-                        .hasAnyRole("ADMIN", "STUDENT")
+                                                .requestMatchers("/teacher/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
-                        .requestMatchers("/api/chat/**")
-                        .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+                                                .requestMatchers("/student/**")
+                                                .hasAnyRole("ADMIN", "STUDENT")
 
-                        .requestMatchers("/api/whiteboard/**")
-                        .hasAnyRole("TRAINER", "STUDENT")
+                                                .requestMatchers("/api/chat/**")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                        .anyRequest()
-                        .authenticated())
+                                                .requestMatchers("/api/whiteboard/**")
+                                                .hasAnyRole("TRAINER", "STUDENT")
 
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
+                                                // .requestMatchers("/api/raisehand/**")
+                                                // .hasAnyRole("STUDENT", "TRAINER")
+                                                .requestMatchers("/api/raisehand/**")
+                                                .permitAll()
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                                // .requestMatchers("/api/participants/**")
+                                                // .hasAnyRole("TRAINER", "STUDENT")
+                                                .requestMatchers("/api/participants/**")
+                                                .permitAll()
 
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                                                .anyRequest()
+                                                .authenticated())
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
-        return config.getAuthenticationManager();
-    }
+                                .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+                                .addFilterBefore(jwtFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
 
-        CorsConfiguration configuration = new CorsConfiguration();
+                return http.build();
+        }
 
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:5173"));
+        @Bean
+        public AuthenticationManager authenticationManager(
+                        AuthenticationConfiguration config) throws Exception {
 
-        configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE","OPTIONS"));
+                return config.getAuthenticationManager();
+        }
 
-        configuration.setAllowedHeaders(
-                List.of("*"));
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-        configuration.setAllowCredentials(true);
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+                CorsConfiguration configuration = new CorsConfiguration();
 
-        source.registerCorsConfiguration("/**", configuration);
+                configuration.setAllowedOrigins(
+                                List.of("http://localhost:5173"));
 
-        return source;
-    }
+                configuration.setAllowedMethods(
+                                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+                configuration.setAllowedHeaders(
+                                List.of("*"));
+
+                configuration.setAllowCredentials(true);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+                source.registerCorsConfiguration("/**", configuration);
+
+                return source;
+        }
 }

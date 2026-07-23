@@ -8,30 +8,27 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationEntryPoint
-        implements AuthenticationEntryPoint {
+                implements AuthenticationEntryPoint {
 
-    @Override
-    public void commence(
+        @Override
+        public void commence(
 
-            HttpServletRequest request,
+                        HttpServletRequest request,
 
-            HttpServletResponse response,
+                        HttpServletResponse response,
 
-            org.springframework.security.core.AuthenticationException authException
+                        org.springframework.security.core.AuthenticationException authException
 
-    ) throws IOException {
+        ) throws IOException {
 
-        System.out.println("401 Unauthorized");
-System.out.println(request.getRequestURI());
+                response.sendError(
 
-        response.sendError(
+                                HttpServletResponse.SC_UNAUTHORIZED,
 
-                HttpServletResponse.SC_UNAUTHORIZED,
+                                "Unauthorized"
 
-                "Unauthorized"
+                );
 
-        );
-
-    }
+        }
 
 }

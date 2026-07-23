@@ -9,6 +9,7 @@ public class AttendanceRequest {
     @NotBlank
     private String sessionId;
 
+    @NotBlank
     private String joinTime;
 
     private String leaveTime;

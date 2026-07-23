@@ -3,7 +3,6 @@ package com.example.backend.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,49 +20,50 @@ import com.example.backend.repository.UserRepo;
 @CrossOrigin(origins = "http://localhost:5173")
 public class ChatController {
 
-    @Autowired
-    ChatRepo chatRepo;
+    private final ChatRepo chatRepo;
+    private final SessionRepo sessionRepo;
+    private final UserRepo userRepo;
 
-    @Autowired
-    SessionRepo sessionRepo;
+    public ChatController(
+            ChatRepo chatRepo,
+            SessionRepo sessionRepo,
+            UserRepo userRepo) {
 
-    @Autowired
-    UserRepo userRepo;
+        this.chatRepo = chatRepo;
+        this.sessionRepo = sessionRepo;
+        this.userRepo = userRepo;
+    }
 
     @PostMapping("/send")
-    public ChatResponse sendMessage(
-            @RequestBody ChatRequest request) {
+    public ChatResponse sendMessage(@RequestBody ChatRequest request) {
 
-        if (request.getMessage() == null ||
-                request.getMessage().trim().isEmpty()) {
-
+        if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
             return new ChatResponse("Message cannot be empty");
         }
 
-        if (request.getMessage().length() > 1000) {
+        String sessionId = request.getSessionId();
 
-            return new ChatResponse("Message too long");
-        }
+if (sessionId == null || sessionId.isBlank()) {
+    return new ChatResponse("Session Id Required");
+}
 
-        Session session = sessionRepo.findById(request.getSessionId()).orElse(null);
+Session session = sessionRepo.findById(sessionId)
+        .orElse(null);
 
-        if (session == null) {
+        String senderId = request.getSenderId();
 
-            return new ChatResponse("Invalid Session");
-        }
+if (senderId == null || senderId.isBlank()) {
+    return new ChatResponse("Sender Id Required");
+}
 
-        User user = userRepo.findById(request.getSenderId()).orElse(null);
-
-        if (user == null) {
-
-            return new ChatResponse("Invalid User");
-        }
+User user = userRepo.findById(senderId)
+        .orElse(null);
 
         Chat chat = new Chat();
 
         chat.setSessionId(request.getSessionId());
-        chat.setSenderId(request.getSenderId());
-        chat.setSenderName(request.getSenderName());
+        chat.setSenderId(user.getId());
+        chat.setSenderName(user.getFirstName() + " " + user.getLastName());
         chat.setMessage(request.getMessage());
         chat.setMessageType(request.getMessageType());
         chat.setTimestamp(LocalDateTime.now());
@@ -75,8 +75,7 @@ public class ChatController {
     }
 
     @GetMapping("/session/{sessionId}")
-    public List<Chat> getSessionMessages(
-            @PathVariable String sessionId) {
+    public List<Chat> getSessionMessages(@PathVariable String sessionId) {
 
         return chatRepo.findBySessionIdOrderByTimestampAsc(sessionId);
     }
@@ -87,24 +86,26 @@ public class ChatController {
             Authentication authentication) {
 
         if (authentication == null) {
-
             return new ChatResponse("Unauthorized");
         }
 
         boolean allowed = authentication.getAuthorities()
                 .stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") ||
-                        a.getAuthority().equals("ROLE_TRAINER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_TRAINER"));
 
         if (!allowed) {
-
             return new ChatResponse("Only Trainer/Admin can delete");
         }
 
-        Chat chat = chatRepo.findById(messageId).orElse(null);
+       if (messageId == null || messageId.isBlank()) {
+    return new ChatResponse("Invalid Message Id");
+}
+
+Chat chat = chatRepo.findById(messageId)
+        .orElse(null);
 
         if (chat == null) {
-
             return new ChatResponse("Message Not Found");
         }
 
@@ -112,5 +113,4 @@ public class ChatController {
 
         return new ChatResponse("Message Deleted");
     }
-
 }

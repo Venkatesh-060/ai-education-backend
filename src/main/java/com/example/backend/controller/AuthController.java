@@ -1,6 +1,5 @@
 package com.example.backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,11 +17,14 @@ import com.example.backend.dto.RegisterResponse;
 @CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
-    @Autowired
-    UserRepo userRepo;
+    private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    public AuthController(UserRepo userRepo,
+                          PasswordEncoder passwordEncoder) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     // ================= LOGIN =================
 
@@ -42,7 +44,7 @@ public class AuthController {
         String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
 
         return new LoginResponse(token, user.getRole(), user.getId(), user.getFirstName(),
-                user.getLastName());
+                user.getLastName(),user.getEmail());
     }
 
     // ================= RESET PASSWORD =================

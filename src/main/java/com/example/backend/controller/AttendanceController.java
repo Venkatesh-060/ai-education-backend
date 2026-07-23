@@ -3,7 +3,6 @@ package com.example.backend.controller;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.example.backend.dto.AttendanceRequest;
@@ -14,7 +13,6 @@ import com.example.backend.repository.SessionRepo;
 import com.example.backend.repository.UserRepo;
 import com.example.backend.model.User;
 import com.example.backend.dto.AttendanceStats;
-import com.example.backend.model.Session;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -22,73 +20,62 @@ import com.example.backend.model.Session;
 
 public class AttendanceController {
 
-        @Autowired
-        AttendanceRepo attendanceRepo;
+        private final AttendanceRepo attendanceRepo;
+        private final UserRepo userRepo;
+        private final SessionRepo sessionRepo;
 
-        @Autowired
-        UserRepo userRepo;
+        public AttendanceController(
+                        AttendanceRepo attendanceRepo,
+                        UserRepo userRepo,
+                        SessionRepo sessionRepo) {
 
-        @Autowired
-        SessionRepo sessionRepo;
+                this.attendanceRepo = attendanceRepo;
+                this.userRepo = userRepo;
+                this.sessionRepo = sessionRepo;
+        }
 
         // MARK ATTENDANCE
 
-       @PostMapping("/mark")
-public String markAttendance(@Valid @RequestBody AttendanceRequest request) {
+        @PostMapping("/mark")
+        public String markAttendance(@Valid @RequestBody AttendanceRequest request) {
 
-    List<Attendance> oldAttendance =
-            attendanceRepo.findByUserIdAndSessionId(
-                    request.getUserId(),
-                    request.getSessionId());
+                List<Attendance> oldAttendance = attendanceRepo.findByUserIdAndSessionId(
+                                request.getUserId(),
+                                request.getSessionId());
 
-    if (!oldAttendance.isEmpty()) {
-        return "Attendance Already Marked";
-    }
+                if (!oldAttendance.isEmpty()) {
+                        return "Attendance Already Marked";
+                }
 
-    Attendance attendance = new Attendance();
+                Attendance attendance = new Attendance();
 
-    attendance.setUserId(request.getUserId());
-    attendance.setSessionId(request.getSessionId());
-    attendance.setJoinTime(request.getJoinTime());
-    attendance.setLeaveTime(request.getLeaveTime());
-    
-    Session session =
-            sessionRepo.findById(request.getSessionId()).orElse(null);
+                attendance.setUserId(request.getUserId());
+                attendance.setSessionId(request.getSessionId());
+                attendance.setJoinTime(request.getJoinTime());
+                attendance.setLeaveTime(request.getLeaveTime());
 
-    if (session != null) {
+                sessionRepo.findById(request.getSessionId()).ifPresentOrElse(session -> {
 
-        LocalDateTime join =
-                LocalDateTime.parse(request.getJoinTime());
+                        LocalDateTime join = LocalDateTime.parse(request.getJoinTime());
 
-        LocalDateTime start =
-                LocalDateTime.parse(
-                        session.getSessionDate() +
-                        "T" +
-                        session.getStartTime());
+                        LocalDateTime start = LocalDateTime.parse(
+                                        session.getSessionDate() + "T" + session.getStartTime());
 
-        if (join.isAfter(start.plusMinutes(10))) {
+                        if (join.isAfter(start.plusMinutes(10))) {
+                                attendance.setStatus("Late");
+                        } else {
+                                attendance.setStatus("Present");
+                        }
 
-            attendance.setStatus("Late");
+                }, () -> attendance.setStatus("Present"));
 
-        } else {
+                attendance.setCreatedAt(LocalDateTime.now());
+                attendance.setUpdatedAt(LocalDateTime.now());
 
-            attendance.setStatus("Present");
+                attendanceRepo.save(attendance);
 
+                return "Attendance Marked Successfully";
         }
-
-    } else {
-
-        attendance.setStatus("Present");
-
-    }
-
-    attendance.setCreatedAt(LocalDateTime.now());
-    attendance.setUpdatedAt(LocalDateTime.now());
-
-    attendanceRepo.save(attendance);
-
-    return "Attendance Marked Successfully";
-}
 
         // GET SESSION ATTENDANCE
 
@@ -115,47 +102,42 @@ public String markAttendance(@Valid @RequestBody AttendanceRequest request) {
         // UPDATE ATTENDANCE
 
         @PutMapping("/update")
-public String updateAttendance(@Valid @RequestBody AttendanceRequest request) {
+        public String updateAttendance(@Valid @RequestBody AttendanceRequest request) {
 
-    System.out.println("UPDATE API CALLED");
 
-    List<Attendance> attendanceList =
-            attendanceRepo.findByUserIdAndSessionId(
-                    request.getUserId(),
-                    request.getSessionId());
+                List<Attendance> attendanceList = attendanceRepo.findByUserIdAndSessionId(
+                                request.getUserId(),
+                                request.getSessionId());
 
-    if (attendanceList.isEmpty()) {
-        return "Attendance Not Found";
-    }
+                if (attendanceList.isEmpty()) {
+                        return "Attendance Not Found";
+                }
 
-    Attendance attendance = attendanceList.get(0);
+                Attendance attendance = attendanceList.get(0);
 
-    attendance.setLeaveTime(request.getLeaveTime());
+                attendance.setLeaveTime(request.getLeaveTime());
 
-    LocalDateTime join =
-            LocalDateTime.parse(attendance.getJoinTime());
+                LocalDateTime join = LocalDateTime.parse(attendance.getJoinTime());
 
-    LocalDateTime leave =
-            LocalDateTime.parse(request.getLeaveTime());
+                LocalDateTime leave = LocalDateTime.parse(request.getLeaveTime());
 
-    long minutes =
-            Duration.between(join, leave).toMinutes();
+                long minutes = Duration.between(join, leave).toMinutes();
 
-    attendance.setDuration(minutes);
+                attendance.setDuration(minutes);
 
-    // Don't overwrite Late status
-    if (minutes < 30) {
+                // Don't overwrite Late status
+                if (minutes < 30) {
 
-        attendance.setStatus("Left Early");
+                        attendance.setStatus("Left Early");
 
-    }
+                }
 
-    attendance.setUpdatedAt(LocalDateTime.now());
+                attendance.setUpdatedAt(LocalDateTime.now());
 
-    attendanceRepo.save(attendance);
+                attendanceRepo.save(attendance);
 
-    return "Attendance Updated";
-}
+                return "Attendance Updated";
+        }
 
         @GetMapping("/all")
         public List<Attendance> getAllAttendance() {
@@ -202,54 +184,41 @@ public String updateAttendance(@Valid @RequestBody AttendanceRequest request) {
         @GetMapping("/report")
         public List<AttendanceResponse> attendanceReport() {
 
-                System.out.println("===== REPORT API CALLED =====");
 
                 List<Attendance> attendanceList = attendanceRepo.findAll();
 
-                System.out.println("Attendance Count = " + attendanceList.size());
 
                 List<AttendanceResponse> report = new java.util.ArrayList<>();
 
                 for (Attendance attendance : attendanceList) {
 
-                        System.out.println(attendance.getId());
-
-                        User user = userRepo.findById(attendance.getUserId()).orElse(null);
-
-                        Session session = sessionRepo.findById(attendance.getSessionId()).orElse(null);
-
                         AttendanceResponse response = new AttendanceResponse();
 
-                        response.setAttendanceId(attendance.getId());
+    response.setAttendanceId(attendance.getId());
+    response.setStudentId(attendance.getUserId());
+    response.setSessionId(attendance.getSessionId());
 
-                        response.setStudentId(attendance.getUserId());
+    userRepo.findById(attendance.getUserId()).ifPresentOrElse(
+            user -> response.setStudentName(
+                    user.getFirstName() + " " + user.getLastName()),
+            () -> response.setStudentName("Unknown Student"));
 
-                        response.setStudentName(
-                                        user == null
-                                                        ? "Unknown Student"
-                                                        : user.getFirstName() + " " + user.getLastName());
+    sessionRepo.findById(attendance.getSessionId()).ifPresentOrElse(
+            session -> {
+                response.setSessionName(session.getSessionName());
+                response.setBatchName(session.getBatchName());
+            },
+            () -> {
+                response.setSessionName("Unknown Session");
+                response.setBatchName("-");
+            });
 
-                        response.setSessionId(attendance.getSessionId());
+    response.setJoinTime(attendance.getJoinTime());
+    response.setLeaveTime(attendance.getLeaveTime());
+    response.setDuration(attendance.getDuration());
+    response.setStatus(attendance.getStatus());
 
-                        response.setSessionName(
-                                        session == null
-                                                        ? "Unknown Session"
-                                                        : session.getSessionName());
-
-                        response.setBatchName(
-                                        session == null
-                                                        ? "-"
-                                                        : session.getBatchName());
-
-                        response.setJoinTime(attendance.getJoinTime());
-
-                        response.setLeaveTime(attendance.getLeaveTime());
-
-                        response.setDuration(attendance.getDuration());
-
-                        response.setStatus(attendance.getStatus());
-
-                        report.add(response);
+    report.add(response);
                 }
 
                 return report;

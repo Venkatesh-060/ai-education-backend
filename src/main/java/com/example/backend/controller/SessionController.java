@@ -1,10 +1,8 @@
 package com.example.backend.controller;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.backend.model.Session;
 import com.example.backend.repository.SessionRepo;
 
@@ -13,11 +11,14 @@ import com.example.backend.repository.SessionRepo;
 @CrossOrigin(origins = "http://localhost:5173")
 public class SessionController {
 
-    @Autowired
-    private SessionRepo sessionRepo;
+    private final SessionRepo sessionRepo;
+
+    public SessionController(SessionRepo sessionRepo) {
+        this.sessionRepo = sessionRepo;
+    }
 
     @PostMapping("/create")
-    public String createSession(@RequestBody Session session) {
+    public String createSession(@RequestBody @NonNull Session session) {
 
         sessionRepo.save(session);
 
@@ -31,13 +32,13 @@ public class SessionController {
     }
 
     @GetMapping("/{id}")
-    public Session getSession(@PathVariable String id) {
+    public Session getSession(@PathVariable @NonNull String id) {
 
         return sessionRepo.findById(id).orElse(null);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteSession(@PathVariable String id) {
+    public String deleteSession(@PathVariable @NonNull String id) {
 
         sessionRepo.deleteById(id);
 
@@ -49,13 +50,12 @@ public class SessionController {
             @PathVariable String trainerId) {
 
         return sessionRepo.findByTrainerId(trainerId);
-
     }
 
     @PutMapping("/{id}")
     public Session updateSession(
-            @PathVariable String id,
-            @RequestBody Session session) {
+            @PathVariable @NonNull String id,
+            @RequestBody @NonNull Session session) {
 
         Session oldSession = sessionRepo.findById(id).orElse(null);
 
@@ -71,5 +71,4 @@ public class SessionController {
 
         return sessionRepo.save(oldSession);
     }
-
 }
