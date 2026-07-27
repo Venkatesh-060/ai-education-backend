@@ -92,6 +92,28 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/api/notifications/**").permitAll()
 
+                                                .requestMatchers("/api/feedback")
+                                                .hasRole("STUDENT")
+
+                                                .requestMatchers("/api/feedback/session/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers("/api/feedback/trainer/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers("/api/feedback/average/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers("/api/feedback/distribution/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers("/api/feedback/all")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers("/api/feedback/search")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+
                                                 .anyRequest()
                                                 .authenticated())
 
