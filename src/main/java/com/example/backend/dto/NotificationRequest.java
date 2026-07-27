@@ -1,0 +1,34 @@
+package com.example.backend.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class NotificationRequest {
+
+    @NotBlank(message = "Title is required")
+    private String title;
+
+    @NotBlank(message = "Message is required")
+    private String message;
+
+    @NotBlank(message = "Sender Id is required")
+    private String senderId;
+
+    @NotBlank(message = "Sender Role is required")
+    private String senderRole;
+
+    // ALL / USER / BATCH
+    @NotBlank(message = "Recipient Type is required")
+    private String recipientType;
+
+    // Required only when recipientType = USER
+    private String recipientId;
+
+    // Required only when recipientType = BATCH
+    private String batchId;
+
+    // LOW / MEDIUM / HIGH
+    @NotBlank(message = "Priority is required")
+    private String priority;
+}

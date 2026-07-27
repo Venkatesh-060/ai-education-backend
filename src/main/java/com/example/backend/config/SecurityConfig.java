@@ -90,6 +90,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/participants/**")
                                                 .permitAll()
 
+                                                .requestMatchers("/api/notifications/**").permitAll()
 
                                                 .anyRequest()
                                                 .authenticated())
