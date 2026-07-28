@@ -112,7 +112,8 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/api/feedback/search")
                                                 .hasAnyRole("ADMIN", "TRAINER")
-
+                                                
+                                                .requestMatchers("/api/recovery/**").permitAll()
 
                                                 .anyRequest()
                                                 .authenticated())
