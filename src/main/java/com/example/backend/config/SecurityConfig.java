@@ -3,6 +3,7 @@ package com.example.backend.config;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -90,7 +91,25 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/participants/**")
                                                 .permitAll()
 
-                                                .requestMatchers("/api/notifications/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST,
+                                                                "/api/notifications/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers(HttpMethod.PUT,
+                                                                "/api/notifications/*")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+                                                
+                                                .requestMatchers(HttpMethod.PUT,
+                                                                "/api/notifications/*/read")
+                                                .hasRole("STUDENT")
+
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/api/notifications/**")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+
+                                                .requestMatchers(HttpMethod.DELETE,
+                                                                "/api/notifications/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
                                                 .requestMatchers("/api/feedback")
                                                 .hasRole("STUDENT")
@@ -112,8 +131,10 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/api/feedback/search")
                                                 .hasAnyRole("ADMIN", "TRAINER")
-                                                
+
                                                 .requestMatchers("/api/recovery/**").permitAll()
+
+                                                .requestMatchers("/api/batch/**").hasAnyRole("ADMIN", "TRAINER")
 
                                                 .anyRequest()
                                                 .authenticated())

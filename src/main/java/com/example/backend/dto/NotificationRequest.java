@@ -22,13 +22,14 @@ public class NotificationRequest {
     @NotBlank(message = "Recipient Type is required")
     private String recipientType;
 
+    private String batchId;
+
+    private String sessionId;
     // Required only when recipientType = USER
     private String recipientId;
-
-    // Required only when recipientType = BATCH
-    private String batchId;
 
     // LOW / MEDIUM / HIGH
     @NotBlank(message = "Priority is required")
     private String priority;
+    
 }

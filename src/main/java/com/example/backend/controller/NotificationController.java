@@ -5,8 +5,10 @@ import com.example.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
 import java.util.List;
+import jakarta.validation.Valid;
+import com.example.backend.dto.NotificationRequest;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -17,13 +19,36 @@ public class NotificationController {
     private final NotificationService service;
 
     @PostMapping
-    public Notification create(@RequestBody Notification notification) {
-        return service.create(notification);
+    public Notification create(
+
+            @Valid @RequestBody NotificationRequest request
+
+    ) {
+
+        return service.create(request);
+
     }
 
     @GetMapping
-    public List<Notification> getAll() {
-        return service.getAll();
+    public Page<Notification> getAll(
+
+            @RequestParam(defaultValue = "0") int page,
+
+            @RequestParam(defaultValue = "10") int size) {
+
+        return service.getAll(page, size);
+    }
+
+    @GetMapping("/unread/{userId}")
+    public Page<Notification> unread(
+
+            @PathVariable String userId,
+
+            @RequestParam(defaultValue = "0") int page,
+
+            @RequestParam(defaultValue = "10") int size) {
+
+        return service.unread(userId, page, size);
     }
 
     @GetMapping("/{id}")
@@ -57,10 +82,21 @@ public class NotificationController {
 
     // Logged-in user notifications
 
-    @GetMapping("/my/{userId}")
-    public List<Notification> myNotifications(@PathVariable String userId) {
+    @GetMapping("/my")
+    public ResponseEntity<List<Notification>> myNotifications(
 
-        return service.getMyNotifications(userId);
+            @RequestParam String userId,
+            @RequestParam(required = false) String batchId,
+            @RequestParam(required = false) String sessionId) {
+
+        return ResponseEntity.ok(
+
+                service.getMyNotifications(
+                        userId,
+                        batchId,
+                        sessionId)
+
+        );
     }
 
     // Search

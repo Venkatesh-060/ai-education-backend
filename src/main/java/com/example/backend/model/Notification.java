@@ -14,32 +14,18 @@ public class Notification {
 
     @Id
     private String id;
-
     private String title;
-
     private String message;
-
     private String senderId;
-
     private String senderRole;
-
-    // ALL / BATCH / USER
     private String recipientType;
-
     private String recipientId;
-
     private String batchId;
-
-    // LOW / MEDIUM / HIGH
     private String priority;
-
     private Boolean readStatus = false;
-
-    // ACTIVE / DELETED
     private String status = "ACTIVE";
-
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
+    private String sessionId;
 
 }
