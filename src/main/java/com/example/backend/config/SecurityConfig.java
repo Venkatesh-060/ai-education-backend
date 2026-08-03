@@ -98,7 +98,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.PUT,
                                                                 "/api/notifications/*")
                                                 .hasAnyRole("ADMIN", "TRAINER")
-                                                
+
                                                 .requestMatchers(HttpMethod.PUT,
                                                                 "/api/notifications/*/read")
                                                 .hasRole("STUDENT")
@@ -135,6 +135,21 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/recovery/**").permitAll()
 
                                                 .requestMatchers("/api/batch/**").hasAnyRole("ADMIN", "TRAINER")
+                                                .requestMatchers(HttpMethod.POST,
+                                                                "/api/recordings/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers(HttpMethod.PUT,
+                                                                "/api/recordings/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers(HttpMethod.DELETE,
+                                                                "/api/recordings/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/api/recordings/**")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
                                                 .anyRequest()
                                                 .authenticated())
