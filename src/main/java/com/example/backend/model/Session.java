@@ -15,6 +15,8 @@ public class Session {
     private String sessionDate;
     private String startTime;
     private String endTime;
+    private String status;
+
 
     public Session() {
     }
@@ -73,5 +75,13 @@ public class Session {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

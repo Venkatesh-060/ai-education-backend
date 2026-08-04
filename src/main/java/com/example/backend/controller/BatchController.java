@@ -1,9 +1,7 @@
 package com.example.backend.controller;
 
 import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
-
 import com.example.backend.model.Batch;
 import com.example.backend.repository.BatchRepo;
 
@@ -19,16 +17,15 @@ public class BatchController {
     }
 
     @PostMapping("/create")
-    public String create(@RequestBody Batch batch) {
+    public Batch create(@RequestBody Batch batch) {
 
-        batchRepo.save(batch);
+        batch.setStatus("ACTIVE");
 
-        return "Batch Created Successfully";
+        return batchRepo.save(batch);
     }
 
     @GetMapping("/all")
     public List<Batch> getAll() {
-
         return batchRepo.findAll();
     }
 
@@ -36,6 +33,31 @@ public class BatchController {
     public Batch get(@PathVariable String id) {
 
         return batchRepo.findById(id).orElse(null);
+
+    }
+
+    @PutMapping("/{id}")
+    public Batch update(
+            @PathVariable String id,
+            @RequestBody Batch batch) {
+
+        Batch old = batchRepo.findById(id).orElse(null);
+
+        if (old == null) {
+            return null;
+        }
+
+        old.setBatchName(batch.getBatchName());
+        old.setCourseName(batch.getCourseName());
+        old.setTrainerId(batch.getTrainerId());
+        old.setTrainerName(batch.getTrainerName());
+        old.setStartDate(batch.getStartDate());
+        old.setEndDate(batch.getEndDate());
+        old.setDescription(batch.getDescription());
+        old.setStatus(batch.getStatus());
+
+        return batchRepo.save(old);
+
     }
 
     @DeleteMapping("/{id}")
@@ -43,6 +65,8 @@ public class BatchController {
 
         batchRepo.deleteById(id);
 
-        return "Batch Deleted Successfully";
+        return "Batch Deleted";
+
     }
+
 }

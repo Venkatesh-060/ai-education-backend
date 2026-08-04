@@ -11,4 +11,6 @@ public interface BatchRepo extends MongoRepository<Batch, String> {
     List<Batch> findByTrainerId(String trainerId);
 
     boolean existsByBatchName(String batchName);
+
+    long countByStatus(String status);
 }

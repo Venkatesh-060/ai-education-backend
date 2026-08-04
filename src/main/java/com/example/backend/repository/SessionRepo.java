@@ -9,4 +9,5 @@ import com.example.backend.model.Session;
 public interface SessionRepo extends MongoRepository<Session, String> {
 
     List<Session> findByTrainerId(String trainerId);
+    long countByStatus(String status);
 }
