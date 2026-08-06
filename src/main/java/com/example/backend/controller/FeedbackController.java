@@ -3,7 +3,6 @@ package com.example.backend.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,6 @@ import com.example.backend.model.Session;
 import com.example.backend.repository.FeedbackRepository;
 import com.example.backend.repository.ParticipantRepo;
 import com.example.backend.repository.SessionRepo;
-
 import jakarta.validation.Valid;
 
 @RestController

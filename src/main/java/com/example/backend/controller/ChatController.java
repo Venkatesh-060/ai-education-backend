@@ -2,10 +2,8 @@ package com.example.backend.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.backend.dto.ChatRequest;
 import com.example.backend.dto.ChatResponse;
 import com.example.backend.model.Chat;
@@ -28,7 +26,6 @@ public class ChatController {
             ChatRepo chatRepo,
             SessionRepo sessionRepo,
             UserRepo userRepo) {
-
         this.chatRepo = chatRepo;
         this.sessionRepo = sessionRepo;
         this.userRepo = userRepo;
@@ -42,7 +39,6 @@ public class ChatController {
         }
 
         String sessionId = request.getSessionId();
-
 if (sessionId == null || sessionId.isBlank()) {
     return new ChatResponse("Session Id Required");
 }
@@ -51,16 +47,13 @@ Session session = sessionRepo.findById(sessionId)
         .orElse(null);
 
         String senderId = request.getSenderId();
-
 if (senderId == null || senderId.isBlank()) {
     return new ChatResponse("Sender Id Required");
 }
 
 User user = userRepo.findById(senderId)
         .orElse(null);
-
         Chat chat = new Chat();
-
         chat.setSessionId(request.getSessionId());
         chat.setSenderId(user.getId());
         chat.setSenderName(user.getFirstName() + " " + user.getLastName());
@@ -68,9 +61,7 @@ User user = userRepo.findById(senderId)
         chat.setMessageType(request.getMessageType());
         chat.setTimestamp(LocalDateTime.now());
         chat.setCreatedAt(LocalDateTime.now());
-
         chatRepo.save(chat);
-
         return new ChatResponse("Message Sent");
     }
 
@@ -108,9 +99,7 @@ Chat chat = chatRepo.findById(messageId)
         if (chat == null) {
             return new ChatResponse("Message Not Found");
         }
-
         chatRepo.delete(chat);
-
         return new ChatResponse("Message Deleted");
     }
 }

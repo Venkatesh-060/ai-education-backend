@@ -20,7 +20,6 @@ public class BatchController {
     public Batch create(@RequestBody Batch batch) {
 
         batch.setStatus("ACTIVE");
-
         return batchRepo.save(batch);
     }
 
@@ -42,7 +41,6 @@ public class BatchController {
             @RequestBody Batch batch) {
 
         Batch old = batchRepo.findById(id).orElse(null);
-
         if (old == null) {
             return null;
         }
@@ -55,7 +53,6 @@ public class BatchController {
         old.setEndDate(batch.getEndDate());
         old.setDescription(batch.getDescription());
         old.setStatus(batch.getStatus());
-
         return batchRepo.save(old);
 
     }
@@ -64,7 +61,6 @@ public class BatchController {
     public String delete(@PathVariable String id) {
 
         batchRepo.deleteById(id);
-
         return "Batch Deleted";
 
     }

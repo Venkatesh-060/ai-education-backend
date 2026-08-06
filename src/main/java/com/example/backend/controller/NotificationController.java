@@ -99,15 +99,11 @@ public class NotificationController {
         );
     }
 
-    // Search
-
     @GetMapping("/search")
     public List<Notification> search(@RequestParam String keyword) {
 
         return service.search(keyword);
     }
-
-    // Priority Filter
 
     @GetMapping("/priority/{priority}")
     public List<Notification> priority(@PathVariable String priority) {
@@ -115,15 +111,11 @@ public class NotificationController {
         return service.getByPriority(priority);
     }
 
-    // Recipient Type Filter
-
     @GetMapping("/recipient/{type}")
     public List<Notification> recipient(@PathVariable String type) {
 
         return service.getByRecipientType(type);
     }
-
-    // Status Filter
 
     @GetMapping("/status/{status}")
     public List<Notification> status(@PathVariable String status) {

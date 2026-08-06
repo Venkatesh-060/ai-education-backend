@@ -2,7 +2,6 @@ package com.example.backend.controller;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.dto.LoginResponse;
 import com.example.backend.dto.ResetPasswordRequest;
@@ -21,18 +20,15 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(UserRepo userRepo,
-                          PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
     }
-
-    // ================= LOGIN =================
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
 
         User user = userRepo.findByEmail(request.getEmail());
-
         if (user == null) {
             throw new RuntimeException("User Not Found");
         }
@@ -42,44 +38,32 @@ public class AuthController {
         }
 
         String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
-
         return new LoginResponse(token, user.getRole(), user.getId(), user.getFirstName(),
-                user.getLastName(),user.getEmail());
+                user.getLastName(), user.getEmail());
     }
-
-    // ================= RESET PASSWORD =================
 
     @PostMapping("/reset-password")
     public String resetPassword(@RequestBody ResetPasswordRequest request) {
 
         User user = userRepo.findByEmail(request.getEmail());
-
         if (user == null) {
             return "User Not Found";
         }
-
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
         userRepo.save(user);
-
         return "Password Changed Successfully";
     }
-
-    // ================= ENCODE OLD PASSWORD =================
 
     @GetMapping("/encode")
     public String encodePassword() {
 
         User user = userRepo.findByEmail("admin@gmail.com");
-
         if (user == null) {
             return "Admin Not Found";
         }
 
         user.setPassword(passwordEncoder.encode("Admin@123"));
-
         userRepo.save(user);
-
         return "Password Updated";
     }
 
@@ -88,21 +72,19 @@ public class AuthController {
             @RequestBody RegisterRequest request) {
 
         User oldUser = userRepo.findByEmail(request.getEmail());
-
         if (oldUser != null) {
             return new RegisterResponse("Email Already Exists");
         }
-
         User user = new User();
-
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-
+        user.setActive(true);
+        user.setPhone("");
+        user.setProfileImage("");
         userRepo.save(user);
-
         return new RegisterResponse("Registration Successful");
     }
 }

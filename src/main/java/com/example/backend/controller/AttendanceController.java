@@ -34,8 +34,6 @@ public class AttendanceController {
                 this.sessionRepo = sessionRepo;
         }
 
-        // MARK ATTENDANCE
-
         @PostMapping("/mark")
         public String markAttendance(@Valid @RequestBody AttendanceRequest request) {
 
@@ -48,16 +46,13 @@ public class AttendanceController {
                 }
 
                 Attendance attendance = new Attendance();
-
                 attendance.setUserId(request.getUserId());
                 attendance.setSessionId(request.getSessionId());
                 attendance.setJoinTime(request.getJoinTime());
                 attendance.setLeaveTime(request.getLeaveTime());
-
                 sessionRepo.findById(request.getSessionId()).ifPresentOrElse(session -> {
 
                         LocalDateTime join = LocalDateTime.parse(request.getJoinTime());
-
                         LocalDateTime start = LocalDateTime.parse(
                                         session.getSessionDate() + "T" + session.getStartTime());
 
@@ -71,13 +66,9 @@ public class AttendanceController {
 
                 attendance.setCreatedAt(LocalDateTime.now());
                 attendance.setUpdatedAt(LocalDateTime.now());
-
                 attendanceRepo.save(attendance);
-
                 return "Attendance Marked Successfully";
         }
-
-        // GET SESSION ATTENDANCE
 
         @GetMapping("/session/{sessionId}")
 
@@ -88,22 +79,16 @@ public class AttendanceController {
 
         }
 
-        // GET STUDENT ATTENDANCE
-
         @GetMapping("/student/{userId}")
 
         public List<Attendance> getStudentAttendance(
                         @PathVariable String userId) {
-
                 return attendanceRepo.findByUserId(userId);
 
         }
 
-        // UPDATE ATTENDANCE
-
         @PutMapping("/update")
         public String updateAttendance(@Valid @RequestBody AttendanceRequest request) {
-
 
                 List<Attendance> attendanceList = attendanceRepo.findByUserIdAndSessionId(
                                 request.getUserId(),
@@ -114,18 +99,12 @@ public class AttendanceController {
                 }
 
                 Attendance attendance = attendanceList.get(0);
-
                 attendance.setLeaveTime(request.getLeaveTime());
-
                 LocalDateTime join = LocalDateTime.parse(attendance.getJoinTime());
-
                 LocalDateTime leave = LocalDateTime.parse(request.getLeaveTime());
-
                 long minutes = Duration.between(join, leave).toMinutes();
-
                 attendance.setDuration(minutes);
 
-                // Don't overwrite Late status
                 if (minutes < 30) {
 
                         attendance.setStatus("Left Early");
@@ -133,9 +112,7 @@ public class AttendanceController {
                 }
 
                 attendance.setUpdatedAt(LocalDateTime.now());
-
                 attendanceRepo.save(attendance);
-
                 return "Attendance Updated";
         }
 
@@ -148,13 +125,9 @@ public class AttendanceController {
         public AttendanceStats getStats() {
 
                 List<User> students = userRepo.findByRole("STUDENT");
-
                 List<Attendance> attendanceList = attendanceRepo.findAll();
-
                 int totalStudents = students.size();
-
                 int present = 0;
-
                 int absent = 0;
 
                 for (Attendance attendance : attendanceList) {
@@ -164,7 +137,6 @@ public class AttendanceController {
                         } else {
                                 absent++;
                         }
-
                 }
 
                 double percentage = 0;
@@ -184,20 +156,14 @@ public class AttendanceController {
         @GetMapping("/report")
         public List<AttendanceResponse> attendanceReport() {
 
-
                 List<Attendance> attendanceList = attendanceRepo.findAll();
-
-
                 List<AttendanceResponse> report = new java.util.ArrayList<>();
 
                 for (Attendance attendance : attendanceList) {
-
                         AttendanceResponse response = new AttendanceResponse();
-
     response.setAttendanceId(attendance.getId());
     response.setStudentId(attendance.getUserId());
     response.setSessionId(attendance.getSessionId());
-
     userRepo.findById(attendance.getUserId()).ifPresentOrElse(
             user -> response.setStudentName(
                     user.getFirstName() + " " + user.getLastName()),
@@ -217,7 +183,6 @@ public class AttendanceController {
     response.setLeaveTime(attendance.getLeaveTime());
     response.setDuration(attendance.getDuration());
     response.setStatus(attendance.getStatus());
-
     report.add(response);
                 }
 
