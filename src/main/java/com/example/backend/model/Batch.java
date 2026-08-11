@@ -1,5 +1,8 @@
 package com.example.backend.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,6 +27,10 @@ public class Batch {
     private String status;
 
     private String description;
+
+    private List<String> studentIds = new ArrayList<>();
+
+    private List<String> studentNames = new ArrayList<>();
 
     public Batch() {
     }
@@ -98,5 +105,21 @@ public class Batch {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<String> getStudentIds() {
+        return studentIds;
+    }
+
+    public void setStudentIds(List<String> studentIds) {
+        this.studentIds = studentIds;
+    }
+
+    public List<String> getStudentNames() {
+        return studentNames;
+    }
+
+    public void setStudentNames(List<String> studentNames) {
+        this.studentNames = studentNames;
     }
 }

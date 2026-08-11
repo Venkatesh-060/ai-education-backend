@@ -11,11 +11,9 @@ import java.util.Date;
 
 public class JwtUtil {
 
-    private static final String SECRET =
-            "mysecretkeymysecretkeymysecretkey123456789";
+    private static final String SECRET = "mysecretkeymysecretkeymysecretkey123456789";
 
-    private static final Key KEY =
-            Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    private static final Key KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     public static String generateToken(String email, String role) {
 
@@ -55,10 +53,11 @@ public class JwtUtil {
 
         } catch (Exception e) {
 
+            System.out.println("JWT validation failed: " + e.getMessage());
+            e.printStackTrace();
+
             return false;
-
         }
-
     }
 
 }

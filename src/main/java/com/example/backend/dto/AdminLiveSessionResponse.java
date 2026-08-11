@@ -1,25 +1,24 @@
-package com.example.backend.model;
+package com.example.backend.dto;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+public class AdminLiveSessionResponse {
 
-@Document(collection = "sessions")
-public class Session {
-
-    @Id
     private String id;
     private String sessionName;
-    private String description;
     private String trainerId;
+    private String trainerName;
     private String batchName;
     private String sessionDate;
     private String startTime;
     private String endTime;
     private String status;
+    private long participantCount;
+    private long activeParticipants;
     private String actualStartTime;
     private String actualEndTime;
+    private long durationMinutes;
+    private String description;
 
-    public Session() {
+    public AdminLiveSessionResponse() {
     }
 
     public String getId() {
@@ -38,20 +37,20 @@ public class Session {
         this.sessionName = sessionName;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getTrainerId() {
         return trainerId;
     }
 
     public void setTrainerId(String trainerId) {
         this.trainerId = trainerId;
+    }
+
+    public String getTrainerName() {
+        return trainerName;
+    }
+
+    public void setTrainerName(String trainerName) {
+        this.trainerName = trainerName;
     }
 
     public String getBatchName() {
@@ -94,6 +93,22 @@ public class Session {
         this.status = status;
     }
 
+    public long getParticipantCount() {
+        return participantCount;
+    }
+
+    public void setParticipantCount(long participantCount) {
+        this.participantCount = participantCount;
+    }
+
+    public long getActiveParticipants() {
+        return activeParticipants;
+    }
+
+    public void setActiveParticipants(long activeParticipants) {
+        this.activeParticipants = activeParticipants;
+    }
+
     public String getActualStartTime() {
         return actualStartTime;
     }
@@ -108,5 +123,21 @@ public class Session {
 
     public void setActualEndTime(String actualEndTime) {
         this.actualEndTime = actualEndTime;
+    }
+
+    public long getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(long durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

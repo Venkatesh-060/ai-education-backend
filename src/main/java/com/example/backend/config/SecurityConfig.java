@@ -1,6 +1,7 @@
 package com.example.backend.config;
 
 import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,12 +43,53 @@ public class SecurityConfig {
                                 })
                                 .csrf(csrf -> csrf.disable())
 
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
+
+                                .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
+
                                 .authorizeHttpRequests(auth -> auth
 
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                // =========================
+                                                // PUBLIC APIs
+                                                // =========================
 
                                                 .requestMatchers("/auth/**").permitAll()
-                                                .requestMatchers("/api/session/**").permitAll()
+
+                                                .requestMatchers("/api/recovery/**").permitAll()
+                                                .requestMatchers("/error").permitAll()
+
+                                                // .requestMatchers("/api/session/**").permitAll()
+
+                                                // =========================
+                                                // BATCH MANAGEMENT
+                                                // ADMIN + TRAINER
+                                                // =========================
+
+                                                .requestMatchers("/api/admin/batches/**")
+                                                .hasRole("ADMIN")
+
+                                                .requestMatchers("/api/trainer/**")
+                                                .hasRole("TRAINER")
+                                                .requestMatchers("/api/batch/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                // =========================
+                                                // SESSION MANAGEMENT
+                                                // =========================
+
+                                                .requestMatchers("/api/session/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                // =========================
+                                                // ADMIN APIs
+                                                // =========================
+
+                                                .requestMatchers("/api/admin/**")
+                                                .hasRole("ADMIN")
+                                                // =========================
+                                                // ATTENDANCE
+                                                // =========================
 
                                                 .requestMatchers("/api/attendance/mark")
                                                 .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
@@ -68,50 +112,66 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/attendance/student/**")
                                                 .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                                                .requestMatchers("/admin/**")
-                                                .hasRole("ADMIN")
-
-                                                .requestMatchers("/teacher/**")
-                                                .hasAnyRole("ADMIN", "TRAINER")
-
-                                                .requestMatchers("/student/**")
-                                                .hasAnyRole("ADMIN", "STUDENT")
+                                                // =========================
+                                                // CHAT
+                                                // =========================
 
                                                 .requestMatchers("/api/chat/**")
                                                 .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
+                                                // =========================
+                                                // WHITEBOARD
+                                                // =========================
+
                                                 .requestMatchers("/api/whiteboard/**")
                                                 .hasAnyRole("TRAINER", "STUDENT")
 
-                                                // .requestMatchers("/api/raisehand/**")
-                                                // .hasAnyRole("STUDENT", "TRAINER")
-                                                .requestMatchers("/api/raisehand/**")
-                                                .permitAll()
+                                                // =========================
+                                                // PARTICIPANTS
+                                                // =========================
 
-                                                // .requestMatchers("/api/participants/**")
-                                                // .hasAnyRole("TRAINER", "STUDENT")
                                                 .requestMatchers("/api/participants/**")
                                                 .permitAll()
 
-                                                .requestMatchers(HttpMethod.POST,
+                                                // =========================
+                                                // RAISE HAND
+                                                // =========================
+
+                                                .requestMatchers("/api/raisehand/**")
+                                                .permitAll()
+
+                                                // =========================
+                                                // NOTIFICATIONS
+                                                // =========================
+
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
                                                                 "/api/notifications/**")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
-                                                .requestMatchers(HttpMethod.PUT,
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
                                                                 "/api/notifications/*")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
-                                                .requestMatchers(HttpMethod.PUT,
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
                                                                 "/api/notifications/*/read")
                                                 .hasRole("STUDENT")
 
-                                                .requestMatchers(HttpMethod.GET,
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
                                                                 "/api/notifications/**")
                                                 .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
 
-                                                .requestMatchers(HttpMethod.DELETE,
+                                                .requestMatchers(
+                                                                HttpMethod.DELETE,
                                                                 "/api/notifications/**")
                                                 .hasAnyRole("ADMIN", "TRAINER")
+
+                                                // =========================
+                                                // FEEDBACK
+                                                // =========================
 
                                                 .requestMatchers("/api/feedback")
                                                 .hasRole("STUDENT")
@@ -134,34 +194,52 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/feedback/search")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
-                                                .requestMatchers("/api/recovery/**").permitAll()
+                                                // =========================
+                                                // RECORDINGS
+                                                // =========================
 
-                                                .requestMatchers("/api/batch/**").hasAnyRole("ADMIN", "TRAINER")
-                                                .requestMatchers(HttpMethod.POST,
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
                                                                 "/api/recordings/**")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
-                                                .requestMatchers(HttpMethod.PUT,
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
                                                                 "/api/recordings/**")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
-                                                .requestMatchers(HttpMethod.DELETE,
+                                                .requestMatchers(
+                                                                HttpMethod.DELETE,
                                                                 "/api/recordings/**")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
-                                                .requestMatchers(HttpMethod.GET,
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
                                                                 "/api/recordings/**")
                                                 .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+
+                                                // =========================
+                                                // ROLE BASED PAGES
+                                                // =========================
+
+                                                .requestMatchers("/teacher/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
+
+                                                .requestMatchers("/student/**")
+                                                .hasAnyRole("ADMIN", "STUDENT")
+
+                                                .requestMatchers("/admin/**")
+                                                .hasRole("ADMIN")
+
+                                                // =========================
+                                                // EVERYTHING ELSE
+                                                // =========================
 
                                                 .anyRequest()
                                                 .authenticated())
 
-                                .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
-
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                                .addFilterBefore(jwtFilter,
+                                .addFilterBefore(
+                                                jwtFilter,
                                                 UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
@@ -176,6 +254,7 @@ public class SecurityConfig {
 
         @Bean
         public PasswordEncoder passwordEncoder() {
+
                 return new BCryptPasswordEncoder();
         }
 
@@ -188,7 +267,12 @@ public class SecurityConfig {
                                 List.of("http://localhost:5173"));
 
                 configuration.setAllowedMethods(
-                                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                                List.of(
+                                                "GET",
+                                                "POST",
+                                                "PUT",
+                                                "DELETE",
+                                                "OPTIONS"));
 
                 configuration.setAllowedHeaders(
                                 List.of("*"));
@@ -197,7 +281,9 @@ public class SecurityConfig {
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-                source.registerCorsConfiguration("/**", configuration);
+                source.registerCorsConfiguration(
+                                "/**",
+                                configuration);
 
                 return source;
         }

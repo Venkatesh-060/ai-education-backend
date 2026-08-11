@@ -15,4 +15,8 @@ public interface AttendanceRepo extends MongoRepository<Attendance, String> {
     // Return List instead of Attendance
     List<Attendance> findByUserIdAndSessionId(String userId, String sessionId);
 
+    long countBySessionIdAndStatus(
+            String sessionId,
+            String status);
+
 }

@@ -1,68 +1,172 @@
 package com.example.backend.controller;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.backend.dto.BatchStatisticsDTO;
 import com.example.backend.model.Batch;
-import com.example.backend.repository.BatchRepo;
+import com.example.backend.model.User;
+import com.example.backend.service.BatchService;
 
 @RestController
-@RequestMapping("/api/batch")
+@RequestMapping("/api/admin/batches")
 @CrossOrigin(origins = "http://localhost:5173")
 public class BatchController {
 
-    private final BatchRepo batchRepo;
+    private final BatchService batchService;
 
-    public BatchController(BatchRepo batchRepo) {
-        this.batchRepo = batchRepo;
+    public BatchController(BatchService batchService) {
+        this.batchService = batchService;
     }
 
-    @PostMapping("/create")
-    public Batch create(@RequestBody Batch batch) {
+    // ==========================================
+    // CREATE BATCH
+    // POST /api/admin/batches
+    // ==========================================
 
-        batch.setStatus("ACTIVE");
-        return batchRepo.save(batch);
+    @PostMapping
+    public ResponseEntity<Batch> create(
+            @RequestBody Batch batch) {
+
+        return ResponseEntity.ok(
+                batchService.createBatch(batch));
     }
 
-    @GetMapping("/all")
-    public List<Batch> getAll() {
-        return batchRepo.findAll();
+    // ==========================================
+    // GET ALL BATCHES
+    // GET /api/admin/batches
+    // ==========================================
+
+    @GetMapping
+    public ResponseEntity<List<Batch>> getAll() {
+
+        return ResponseEntity.ok(
+                batchService.getAllBatches());
     }
+
+    // ==========================================
+    // GET ALL STUDENTS
+    // GET /api/admin/batches/students
+    // ==========================================
+
+    @GetMapping("/students")
+    public ResponseEntity<List<User>> getStudents() {
+
+        return ResponseEntity.ok(
+                batchService.getStudents());
+    }
+
+    // ==========================================
+    // GET ALL TRAINERS
+    // GET /api/admin/batches/trainers
+    // ==========================================
+
+    @GetMapping("/trainers")
+    public ResponseEntity<List<User>> getTrainers() {
+
+        return ResponseEntity.ok(
+                batchService.getTrainers());
+    }
+
+    // ==========================================
+    // BATCH STATISTICS
+    // GET /api/admin/batches/statistics
+    // ==========================================
+
+    @GetMapping("/statistics")
+    public ResponseEntity<BatchStatisticsDTO> statistics() {
+
+        return ResponseEntity.ok(
+                batchService.getStatistics());
+    }
+
+    // ==========================================
+    // GET SINGLE BATCH
+    // GET /api/admin/batches/{id}
+    // ==========================================
 
     @GetMapping("/{id}")
-    public Batch get(@PathVariable String id) {
+    public ResponseEntity<Batch> get(
+            @PathVariable String id) {
 
-        return batchRepo.findById(id).orElse(null);
-
+        return ResponseEntity.ok(
+                batchService.getBatch(id));
     }
 
+    // ==========================================
+    // UPDATE BATCH
+    // PUT /api/admin/batches/{id}
+    // ==========================================
+
     @PutMapping("/{id}")
-    public Batch update(
+    public ResponseEntity<Batch> update(
             @PathVariable String id,
             @RequestBody Batch batch) {
 
-        Batch old = batchRepo.findById(id).orElse(null);
-        if (old == null) {
-            return null;
-        }
-
-        old.setBatchName(batch.getBatchName());
-        old.setCourseName(batch.getCourseName());
-        old.setTrainerId(batch.getTrainerId());
-        old.setTrainerName(batch.getTrainerName());
-        old.setStartDate(batch.getStartDate());
-        old.setEndDate(batch.getEndDate());
-        old.setDescription(batch.getDescription());
-        old.setStatus(batch.getStatus());
-        return batchRepo.save(old);
-
+        return ResponseEntity.ok(
+                batchService.updateBatch(id, batch));
     }
+
+    // ==========================================
+    // DELETE BATCH
+    // DELETE /api/admin/batches/{id}
+    // ==========================================
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable String id) {
+    public ResponseEntity<String> delete(
+            @PathVariable String id) {
 
-        batchRepo.deleteById(id);
-        return "Batch Deleted";
+        batchService.deleteBatch(id);
 
+        return ResponseEntity.ok(
+                "Batch deleted successfully");
     }
 
+    // ==========================================
+    // ASSIGN TRAINER
+    // PUT /api/admin/batches/{batchId}/trainer/{trainerId}
+    // ==========================================
+
+    @PutMapping("/{batchId}/trainer/{trainerId}")
+    public ResponseEntity<Batch> assignTrainer(
+            @PathVariable String batchId,
+            @PathVariable String trainerId) {
+
+        return ResponseEntity.ok(
+                batchService.assignTrainer(
+                        batchId,
+                        trainerId));
+    }
+
+    // ==========================================
+    // ALLOCATE STUDENTS
+    // PUT /api/admin/batches/{batchId}/students
+    // ==========================================
+
+    @PutMapping("/{batchId}/students")
+    public ResponseEntity<Batch> allocateStudents(
+            @PathVariable String batchId,
+            @RequestBody List<String> studentIds) {
+
+        return ResponseEntity.ok(
+                batchService.allocateStudents(
+                        batchId,
+                        studentIds));
+    }
+
+    // ==========================================
+    // REMOVE STUDENT
+    // DELETE /api/admin/batches/{batchId}/students/{studentId}
+    // ==========================================
+
+    @DeleteMapping("/{batchId}/students/{studentId}")
+    public ResponseEntity<Batch> removeStudent(
+            @PathVariable String batchId,
+            @PathVariable String studentId) {
+
+        return ResponseEntity.ok(
+                batchService.removeStudent(
+                        batchId,
+                        studentId));
+    }
 }

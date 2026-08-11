@@ -1,34 +1,29 @@
 package com.example.backend.config;
 
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
 @Component
-public class JwtAuthenticationEntryPoint
-                implements AuthenticationEntryPoint {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         @Override
         public void commence(
-
                         HttpServletRequest request,
-
                         HttpServletResponse response,
+                        AuthenticationException authException)
+                        throws IOException {
 
-                        org.springframework.security.core.AuthenticationException authException
-
-        ) throws IOException {
+                System.out.println("========== UNAUTHORIZED ==========");
+                System.out.println("URI: " + request.getRequestURI());
+                System.out.println("Reason: " + authException.getMessage());
+                System.out.println("==================================");
 
                 response.sendError(
-
                                 HttpServletResponse.SC_UNAUTHORIZED,
-
-                                "Unauthorized"
-
-                );
-
+                                "Unauthorized");
         }
-
 }

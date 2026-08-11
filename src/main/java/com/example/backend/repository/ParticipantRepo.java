@@ -9,12 +9,21 @@ public interface ParticipantRepo extends MongoRepository<Participant, String> {
 
     List<Participant> findBySessionId(String sessionId);
 
-     List<Participant> findBySessionIdAndUserId(
+    List<Participant> findBySessionIdAndStatus(
+            String sessionId,
+            String status);
+
+    List<Participant> findBySessionIdAndUserId(
             String sessionId,
             String userId);
 
-            Optional<Participant> findFirstBySessionIdAndUserId(
+    Optional<Participant> findFirstBySessionIdAndUserId(
             String sessionId,
             String userId);
 
+    long countBySessionId(String sessionId);
+
+    long countBySessionIdAndStatus(
+            String sessionId,
+            String status);
 }

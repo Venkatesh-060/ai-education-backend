@@ -121,36 +121,60 @@ public class AttendanceController {
                 return attendanceRepo.findAll();
         }
 
-        @GetMapping("/stats")
-        public AttendanceStats getStats() {
+        @GetMapping("/stats/{sessionId}")
+        public AttendanceStats getStats(
+                        @PathVariable String sessionId) {
 
+                // Get all students
                 List<User> students = userRepo.findByRole("STUDENT");
-                List<Attendance> attendanceList = attendanceRepo.findAll();
+
+                // Get attendance records only for this session
+                List<Attendance> attendanceList = attendanceRepo.findBySessionId(sessionId);
+
                 int totalStudents = students.size();
                 int present = 0;
                 int absent = 0;
 
+                // Count Present and Late
                 for (Attendance attendance : attendanceList) {
 
-                        if (attendance.getStatus().equalsIgnoreCase("Present")) {
+                        if ("Present".equalsIgnoreCase(
+                                        attendance.getStatus())) {
+
                                 present++;
-                        } else {
-                                absent++;
+
+                        } else if ("Late".equalsIgnoreCase(
+                                        attendance.getStatus())) {
+
+                                // Late students are considered attended
+                                present++;
                         }
                 }
 
-                double percentage = 0;
+                // Calculate absent students
+                absent = totalStudents - present;
+
+                // Prevent negative value
+                if (absent < 0) {
+                        absent = 0;
+                }
+
+                // Calculate attendance percentage
+                double percentage = 0.0;
 
                 if (totalStudents > 0) {
+
                         percentage = ((double) present / totalStudents) * 100;
                 }
+
+                // Round to 2 decimal places
+                percentage = Math.round(percentage * 100.0) / 100.0;
 
                 return new AttendanceStats(
                                 totalStudents,
                                 present,
                                 absent,
                                 percentage);
-
         }
 
         @GetMapping("/report")
@@ -161,29 +185,29 @@ public class AttendanceController {
 
                 for (Attendance attendance : attendanceList) {
                         AttendanceResponse response = new AttendanceResponse();
-    response.setAttendanceId(attendance.getId());
-    response.setStudentId(attendance.getUserId());
-    response.setSessionId(attendance.getSessionId());
-    userRepo.findById(attendance.getUserId()).ifPresentOrElse(
-            user -> response.setStudentName(
-                    user.getFirstName() + " " + user.getLastName()),
-            () -> response.setStudentName("Unknown Student"));
+                        response.setAttendanceId(attendance.getId());
+                        response.setStudentId(attendance.getUserId());
+                        response.setSessionId(attendance.getSessionId());
+                        userRepo.findById(attendance.getUserId()).ifPresentOrElse(
+                                        user -> response.setStudentName(
+                                                        user.getFirstName() + " " + user.getLastName()),
+                                        () -> response.setStudentName("Unknown Student"));
 
-    sessionRepo.findById(attendance.getSessionId()).ifPresentOrElse(
-            session -> {
-                response.setSessionName(session.getSessionName());
-                response.setBatchName(session.getBatchName());
-            },
-            () -> {
-                response.setSessionName("Unknown Session");
-                response.setBatchName("-");
-            });
+                        sessionRepo.findById(attendance.getSessionId()).ifPresentOrElse(
+                                        session -> {
+                                                response.setSessionName(session.getSessionName());
+                                                response.setBatchName(session.getBatchName());
+                                        },
+                                        () -> {
+                                                response.setSessionName("Unknown Session");
+                                                response.setBatchName("-");
+                                        });
 
-    response.setJoinTime(attendance.getJoinTime());
-    response.setLeaveTime(attendance.getLeaveTime());
-    response.setDuration(attendance.getDuration());
-    response.setStatus(attendance.getStatus());
-    report.add(response);
+                        response.setJoinTime(attendance.getJoinTime());
+                        response.setLeaveTime(attendance.getLeaveTime());
+                        response.setDuration(attendance.getDuration());
+                        response.setStatus(attendance.getStatus());
+                        report.add(response);
                 }
 
                 return report;
