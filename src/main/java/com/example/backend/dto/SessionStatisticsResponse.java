@@ -22,10 +22,6 @@ public class SessionStatisticsResponse {
     public SessionStatisticsResponse() {
     }
 
-    // =====================================================
-    // SESSION ID
-    // =====================================================
-
     public String getSessionId() {
         return sessionId;
     }
@@ -33,10 +29,6 @@ public class SessionStatisticsResponse {
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
-
-    // =====================================================
-    // SESSION NAME
-    // =====================================================
 
     public String getSessionName() {
         return sessionName;
@@ -46,10 +38,6 @@ public class SessionStatisticsResponse {
         this.sessionName = sessionName;
     }
 
-    // =====================================================
-    // STATUS
-    // =====================================================
-
     public String getStatus() {
         return status;
     }
@@ -58,10 +46,6 @@ public class SessionStatisticsResponse {
         this.status = status;
     }
 
-    // =====================================================
-    // DURATION
-    // =====================================================
-
     public long getDurationMinutes() {
         return durationMinutes;
     }
@@ -69,10 +53,6 @@ public class SessionStatisticsResponse {
     public void setDurationMinutes(long durationMinutes) {
         this.durationMinutes = durationMinutes;
     }
-
-    // =====================================================
-    // PARTICIPANTS
-    // =====================================================
 
     public long getTotalParticipants() {
         return totalParticipants;
@@ -100,10 +80,6 @@ public class SessionStatisticsResponse {
         this.disconnectedParticipants = disconnectedParticipants;
     }
 
-    // =====================================================
-    // PRESENT
-    // =====================================================
-
     public long getPresent() {
         return present;
     }
@@ -111,10 +87,6 @@ public class SessionStatisticsResponse {
     public void setPresent(long present) {
         this.present = present;
     }
-
-    // =====================================================
-    // LATE
-    // =====================================================
 
     public long getLate() {
         return late;
@@ -124,10 +96,6 @@ public class SessionStatisticsResponse {
         this.late = late;
     }
 
-    // =====================================================
-    // LEFT EARLY
-    // =====================================================
-
     public long getLeftEarly() {
         return leftEarly;
     }
@@ -136,10 +104,6 @@ public class SessionStatisticsResponse {
         this.leftEarly = leftEarly;
     }
 
-    // =====================================================
-    // ABSENT
-    // =====================================================
-
     public long getAbsent() {
         return absent;
     }
@@ -147,10 +111,6 @@ public class SessionStatisticsResponse {
     public void setAbsent(long absent) {
         this.absent = absent;
     }
-
-    // =====================================================
-    // ATTENDANCE PERCENTAGE
-    // =====================================================
 
     public double getAttendancePercentage() {
         return attendancePercentage;

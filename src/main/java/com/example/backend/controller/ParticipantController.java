@@ -3,10 +3,8 @@ package com.example.backend.controller;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.backend.model.Attendance;
 import com.example.backend.model.Participant;
 import com.example.backend.repository.AttendanceRepo;
@@ -23,10 +21,6 @@ public class ParticipantController {
     @Autowired
     private AttendanceRepo attendanceRepo;
 
-    // =========================================================
-    // JOIN SESSION
-    // =========================================================
-
     @PostMapping("/join")
     public String joinParticipant(@RequestBody Participant participant) {
 
@@ -36,12 +30,10 @@ public class ParticipantController {
                 participant.getSessionId(),
                 participant.getUserId());
 
-        // Existing participant
         if (!participants.isEmpty()) {
 
             Participant oldParticipant = participants.get(0);
 
-            // Trainer removed the participant
             if (Boolean.FALSE.equals(oldParticipant.getCanRejoin())) {
                 return "You are removed by trainer";
             }
@@ -55,7 +47,6 @@ public class ParticipantController {
             return "Joined Successfully";
         }
 
-        // New participant
         participant.setStatus("ACTIVE");
         participant.setCanRejoin(true);
         participant.setJoinedAt(LocalDateTime.now());
@@ -66,20 +57,12 @@ public class ParticipantController {
         return "Joined Successfully";
     }
 
-    // =========================================================
-    // GET PARTICIPANTS
-    // =========================================================
-
     @GetMapping("/{sessionId}")
     public List<Participant> getParticipants(
             @PathVariable String sessionId) {
 
         return participantRepo.findBySessionId(sessionId);
     }
-
-    // =========================================================
-    // REMOVE PARTICIPANT
-    // =========================================================
 
     @PutMapping("/remove/{id}")
     public String removeParticipant(
@@ -100,10 +83,6 @@ public class ParticipantController {
         return "Participant Removed";
     }
 
-    // =========================================================
-    // ALLOW REJOIN
-    // =========================================================
-
     @PutMapping("/allow/{id}")
     public String allowRejoin(
             @PathVariable String id) {
@@ -122,10 +101,6 @@ public class ParticipantController {
         return "Participant Can Rejoin";
     }
 
-    // =========================================================
-    // DISCONNECT PARTICIPANT
-    // =========================================================
-
     @PutMapping("/disconnect")
     public String disconnectParticipant(
             @RequestBody Participant participant) {
@@ -142,15 +117,10 @@ public class ParticipantController {
 
         LocalDateTime leftTime = LocalDateTime.now();
 
-        // Update participant
         oldParticipant.setStatus("DISCONNECTED");
         oldParticipant.setLeftAt(leftTime);
 
         participantRepo.save(oldParticipant);
-
-        // =====================================================
-        // UPDATE ATTENDANCE
-        // =====================================================
 
         List<Attendance> attendanceList = attendanceRepo.findByUserIdAndSessionId(
                 participant.getUserId(),
@@ -180,7 +150,6 @@ public class ParticipantController {
                     attendance.setUpdatedAt(
                             LocalDateTime.now());
 
-                    // Mark as Left Early if less than 30 minutes
                     if (minutes < 30) {
                         attendance.setStatus("Left Early");
                     }

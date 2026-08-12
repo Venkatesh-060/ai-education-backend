@@ -80,8 +80,6 @@ public class NotificationController {
         return ResponseEntity.ok("Notification deleted");
     }
 
-    // Logged-in user notifications
-
     @GetMapping("/my")
     public ResponseEntity<List<Notification>> myNotifications(
 

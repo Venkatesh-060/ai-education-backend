@@ -2,7 +2,6 @@ package com.example.backend.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,25 +10,15 @@ public class Batch {
 
     @Id
     private String id;
-
     private String batchName;
-
     private String courseName;
-
     private String trainerId;
-
     private String trainerName;
-
     private String startDate;
-
     private String endDate;
-
     private String status;
-
     private String description;
-
     private List<String> studentIds = new ArrayList<>();
-
     private List<String> studentNames = new ArrayList<>();
 
     public Batch() {

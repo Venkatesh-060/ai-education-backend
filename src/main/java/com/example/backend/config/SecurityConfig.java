@@ -78,6 +78,9 @@ public class SecurityConfig {
                                                 // SESSION MANAGEMENT
                                                 // =========================
 
+                                                .requestMatchers(HttpMethod.GET, "/api/session/all")
+                                                .hasAnyRole("ADMIN", "TRAINER", "STUDENT")
+
                                                 .requestMatchers("/api/session/**")
                                                 .hasAnyRole("ADMIN", "TRAINER")
 
@@ -230,6 +233,20 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/admin/**")
                                                 .hasRole("ADMIN")
+
+                                                // =========================
+                                                // STUDENT EXAMS
+                                                // =========================
+
+                                                .requestMatchers("/api/student/exams/**")
+                                                .hasRole("STUDENT")
+
+                                                // =========================
+                                                // ADMIN / TRAINER EXAMS
+                                                // =========================
+
+                                                .requestMatchers("/api/exams/**")
+                                                .hasAnyRole("ADMIN", "TRAINER")
 
                                                 // =========================
                                                 // EVERYTHING ELSE

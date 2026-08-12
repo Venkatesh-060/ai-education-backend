@@ -1,7 +1,6 @@
 package com.example.backend.config;
 
 import java.io.IOException;
-
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,14 +32,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 System.out.println("======================================");
                 System.out.println("URI = " + request.getRequestURI());
-
                 String header = request.getHeader("Authorization");
-
                 System.out.println("Authorization Header = " + header);
 
                 try {
 
-                        // No token
                         if (header == null || !header.startsWith("Bearer ")) {
 
                                 System.out.println("No Bearer token found");
@@ -49,49 +45,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 return;
                         }
 
-                        // Extract token
                         String token = header.substring(7);
-
-                        // Validate token
                         boolean valid = JwtUtil.validateToken(token);
-
                         System.out.println("Token Valid = " + valid);
 
                         if (!valid) {
 
                                 System.out.println("Invalid JWT token");
-
                                 filterChain.doFilter(request, response);
                                 return;
                         }
 
-                        // Get email from token
                         String email = JwtUtil.getEmail(token);
-
                         System.out.println("JWT Email = " + email);
 
-                        // Only authenticate if no authentication already exists
                         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
                                 var userDetails = service.loadUserByUsername(email);
-
                                 System.out.println(
                                                 "Authorities = "
                                                                 + userDetails.getAuthorities());
-
                                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                                 userDetails,
                                                 null,
                                                 userDetails.getAuthorities());
-
                                 authentication.setDetails(
                                                 new WebAuthenticationDetailsSource()
                                                                 .buildDetails(request));
-
                                 SecurityContextHolder
                                                 .getContext()
                                                 .setAuthentication(authentication);
-
                                 System.out.println(
                                                 "Authentication set successfully");
 
@@ -117,7 +100,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         System.out.println("Error: " + e.getMessage());
                         e.printStackTrace();
 
-                        // Clear invalid authentication
                         SecurityContextHolder.clearContext();
                 }
 

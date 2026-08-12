@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.backend.dto.AdminLiveSessionResponse;
@@ -48,10 +47,6 @@ public class AdminLiveSessionController {
         this.userRepo = userRepo;
     }
 
-    // =========================================================
-    // 1. GET ALL LIVE SESSIONS
-    // =========================================================
-
     @GetMapping
     public List<AdminLiveSessionResponse> getLiveSessions() {
 
@@ -73,10 +68,6 @@ public class AdminLiveSessionController {
         return response;
     }
 
-    // =========================================================
-    // 2. GET SINGLE SESSION
-    // =========================================================
-
     @GetMapping("/{sessionId}")
     public ResponseEntity<AdminLiveSessionResponse> getLiveSession(
             @PathVariable String sessionId) {
@@ -95,10 +86,6 @@ public class AdminLiveSessionController {
         return ResponseEntity.ok(buildSessionResponse(session));
     }
 
-    // =========================================================
-    // 3. FORCE END SESSION
-    // =========================================================
-
     @PutMapping("/{sessionId}/end")
     public String endSession(
             @PathVariable String sessionId) {
@@ -114,20 +101,12 @@ public class AdminLiveSessionController {
             return "Session is not currently live";
         }
 
-        // =====================================================
-        // END SESSION
-        // =====================================================
-
         LocalDateTime endTime = LocalDateTime.now();
 
         session.setStatus("Completed");
         session.setActualEndTime(endTime.toString());
 
         sessionRepo.save(session);
-
-        // =====================================================
-        // DISCONNECT ALL ACTIVE PARTICIPANTS
-        // =====================================================
 
         List<Participant> participants = participantRepo.findBySessionIdAndStatus(
                 sessionId,
@@ -139,10 +118,6 @@ public class AdminLiveSessionController {
             participant.setLeftAt(endTime);
 
             participantRepo.save(participant);
-
-            // =================================================
-            // UPDATE ATTENDANCE
-            // =================================================
 
             List<Attendance> attendanceList = attendanceRepo.findByUserIdAndSessionId(
                     participant.getUserId(),
@@ -172,7 +147,6 @@ public class AdminLiveSessionController {
                         attendance.setUpdatedAt(
                                 LocalDateTime.now());
 
-                        // Less than 30 minutes = Left Early
                         if (minutes < 30) {
                             attendance.setStatus("Left Early");
                         }
@@ -194,17 +168,9 @@ public class AdminLiveSessionController {
         return "Live Session Ended Successfully";
     }
 
-    // =========================================================
-    // 4. SESSION STATISTICS
-    // =========================================================
-
     @GetMapping("/{sessionId}/statistics")
     public SessionStatisticsResponse getStatistics(
             @PathVariable String sessionId) {
-
-        // =====================================================
-        // FIND SESSION
-        // =====================================================
 
         Session session = sessionRepo.findById(sessionId)
                 .orElse(null);
@@ -214,45 +180,20 @@ public class AdminLiveSessionController {
         }
 
         SessionStatisticsResponse response = new SessionStatisticsResponse();
-
-        // =====================================================
-        // BASIC SESSION DETAILS
-        // =====================================================
-
         response.setSessionId(session.getId());
-
         response.setSessionName(
                 session.getSessionName());
-
         response.setStatus(
                 session.getStatus());
-
-        // =====================================================
-        // SESSION DURATION
-        // =====================================================
-
         long duration = calculateDuration(session);
-
         response.setDurationMinutes(duration);
-
-        // =====================================================
-        // PARTICIPANT STATISTICS
-        // =====================================================
-
         long totalParticipants = participantRepo.countBySessionId(sessionId);
-
         long activeParticipants = participantRepo.countBySessionIdAndStatus(
                 sessionId,
                 "ACTIVE");
-
         long disconnectedParticipants = participantRepo.countBySessionIdAndStatus(
                 sessionId,
                 "DISCONNECTED");
-
-        // =====================================================
-        // ATTENDANCE STATISTICS
-        // =====================================================
-
         long present = attendanceRepo.countBySessionIdAndStatus(
                 sessionId,
                 "Present");
@@ -269,10 +210,6 @@ public class AdminLiveSessionController {
                 sessionId,
                 "Absent");
 
-        // =====================================================
-        // SET PARTICIPANT STATISTICS
-        // =====================================================
-
         response.setTotalParticipants(
                 totalParticipants);
 
@@ -281,11 +218,6 @@ public class AdminLiveSessionController {
 
         response.setDisconnectedParticipants(
                 disconnectedParticipants);
-
-        // =====================================================
-        // SET ATTENDANCE STATISTICS
-        // =====================================================
-
         response.setPresent(present);
 
         response.setLate(late);
@@ -293,10 +225,6 @@ public class AdminLiveSessionController {
         response.setLeftEarly(leftEarly);
 
         response.setAbsent(absent);
-
-        // =====================================================
-        // ATTENDANCE PERCENTAGE
-        // =====================================================
 
         long attendanceRecords = attendanceRepo
                 .findBySessionId(sessionId)
@@ -312,7 +240,6 @@ public class AdminLiveSessionController {
                     attendanceRecords) * 100;
         }
 
-        // Round to 2 decimal places
         attendancePercentage = Math.round(
                 attendancePercentage * 100.0) / 100.0;
 
@@ -321,10 +248,6 @@ public class AdminLiveSessionController {
 
         return response;
     }
-
-    // =========================================================
-    // BUILD SESSION RESPONSE
-    // =========================================================
 
     private AdminLiveSessionResponse buildSessionResponse(
             Session session) {
@@ -355,7 +278,6 @@ public class AdminLiveSessionController {
         response.setActualEndTime(
                 session.getActualEndTime());
 
-        // Trainer name
         if (session.getTrainerId() != null) {
 
             userRepo.findById(session.getTrainerId())
@@ -383,10 +305,6 @@ public class AdminLiveSessionController {
 
         return response;
     }
-
-    // =========================================================
-    // CALCULATE SESSION DURATION
-    // =========================================================
 
     private long calculateDuration(Session session) {
 
@@ -421,10 +339,6 @@ public class AdminLiveSessionController {
         }
     }
 
-    // =========================================================
-    // 5. GET LIVE PARTICIPANTS
-    // =========================================================
-
     @GetMapping("/{sessionId}/participants")
     public ResponseEntity<List<Participant>> getLiveParticipants(
             @PathVariable String sessionId) {
@@ -440,10 +354,6 @@ public class AdminLiveSessionController {
 
         return ResponseEntity.ok(participants);
     }
-
-    // =========================================================
-    // 6. GET LIVE ATTENDANCE
-    // =========================================================
 
     @GetMapping("/{sessionId}/attendance")
     public ResponseEntity<List<Attendance>> getLiveAttendance(

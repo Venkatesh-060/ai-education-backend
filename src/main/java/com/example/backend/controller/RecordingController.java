@@ -1,16 +1,13 @@
 package com.example.backend.controller;
 
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.backend.dto.RecordingAnalyticsResponse;
 import com.example.backend.dto.RecordingRequest;
 import com.example.backend.model.Recording;
 import com.example.backend.service.RecordingService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import java.io.IOException;
@@ -28,8 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class RecordingController {
 
     private final RecordingService service;
-
-    // Upload Recording Metadata
 
     @PostMapping
     public Recording upload(
@@ -58,7 +53,6 @@ public class RecordingController {
         return ResponseEntity.ok(videoUrl);
     }
 
-    // Get All Recordings
 
     @GetMapping
     public Page<Recording> getAll(
@@ -70,7 +64,6 @@ public class RecordingController {
         return service.getAll(page, size);
     }
 
-    // Get Recording By Id
 
     @GetMapping("/{id}")
     public Recording get(
@@ -80,7 +73,6 @@ public class RecordingController {
         return service.get(id);
     }
 
-    // Update Recording
 
     @PutMapping("/{id}")
     public Recording update(
@@ -92,7 +84,6 @@ public class RecordingController {
         return service.update(id, request);
     }
 
-    // Soft Delete Recording
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(
@@ -104,8 +95,6 @@ public class RecordingController {
         return ResponseEntity.ok("Recording Deleted Successfully");
     }
 
-    // Search Recording
-
     @GetMapping("/search")
     public List<Recording> search(
 
@@ -113,8 +102,6 @@ public class RecordingController {
 
         return service.search(keyword);
     }
-
-    // Filter By Batch
 
     @GetMapping("/batch/{batchId}")
     public List<Recording> batch(
@@ -124,8 +111,6 @@ public class RecordingController {
         return service.byBatch(batchId);
     }
 
-    // Filter By Trainer
-
     @GetMapping("/trainer/{trainerId}")
     public List<Recording> trainer(
 
@@ -134,8 +119,6 @@ public class RecordingController {
         return service.byTrainer(trainerId);
     }
 
-    // Filter By Session
-
     @GetMapping("/session/{sessionId}")
     public List<Recording> session(
 
@@ -143,8 +126,6 @@ public class RecordingController {
 
         return service.bySession(sessionId);
     }
-
-    // Playback
 
     @GetMapping("/play/{id}")
     public ResponseEntity<String> play(
@@ -155,8 +136,6 @@ public class RecordingController {
 
                 service.play(id));
     }
-
-    // Download
 
     @GetMapping("/download/{id}")
     public ResponseEntity<String> download(

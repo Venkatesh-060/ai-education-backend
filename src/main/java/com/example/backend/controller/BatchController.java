@@ -19,11 +19,6 @@ public class BatchController {
         this.batchService = batchService;
     }
 
-    // ==========================================
-    // CREATE BATCH
-    // POST /api/admin/batches
-    // ==========================================
-
     @PostMapping
     public ResponseEntity<Batch> create(
             @RequestBody Batch batch) {
@@ -32,22 +27,12 @@ public class BatchController {
                 batchService.createBatch(batch));
     }
 
-    // ==========================================
-    // GET ALL BATCHES
-    // GET /api/admin/batches
-    // ==========================================
-
     @GetMapping
     public ResponseEntity<List<Batch>> getAll() {
 
         return ResponseEntity.ok(
                 batchService.getAllBatches());
     }
-
-    // ==========================================
-    // GET ALL STUDENTS
-    // GET /api/admin/batches/students
-    // ==========================================
 
     @GetMapping("/students")
     public ResponseEntity<List<User>> getStudents() {
@@ -56,10 +41,6 @@ public class BatchController {
                 batchService.getStudents());
     }
 
-    // ==========================================
-    // GET ALL TRAINERS
-    // GET /api/admin/batches/trainers
-    // ==========================================
 
     @GetMapping("/trainers")
     public ResponseEntity<List<User>> getTrainers() {
@@ -68,11 +49,6 @@ public class BatchController {
                 batchService.getTrainers());
     }
 
-    // ==========================================
-    // BATCH STATISTICS
-    // GET /api/admin/batches/statistics
-    // ==========================================
-
     @GetMapping("/statistics")
     public ResponseEntity<BatchStatisticsDTO> statistics() {
 
@@ -80,10 +56,6 @@ public class BatchController {
                 batchService.getStatistics());
     }
 
-    // ==========================================
-    // GET SINGLE BATCH
-    // GET /api/admin/batches/{id}
-    // ==========================================
 
     @GetMapping("/{id}")
     public ResponseEntity<Batch> get(
@@ -92,11 +64,6 @@ public class BatchController {
         return ResponseEntity.ok(
                 batchService.getBatch(id));
     }
-
-    // ==========================================
-    // UPDATE BATCH
-    // PUT /api/admin/batches/{id}
-    // ==========================================
 
     @PutMapping("/{id}")
     public ResponseEntity<Batch> update(
@@ -107,11 +74,6 @@ public class BatchController {
                 batchService.updateBatch(id, batch));
     }
 
-    // ==========================================
-    // DELETE BATCH
-    // DELETE /api/admin/batches/{id}
-    // ==========================================
-
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(
             @PathVariable String id) {
@@ -121,11 +83,6 @@ public class BatchController {
         return ResponseEntity.ok(
                 "Batch deleted successfully");
     }
-
-    // ==========================================
-    // ASSIGN TRAINER
-    // PUT /api/admin/batches/{batchId}/trainer/{trainerId}
-    // ==========================================
 
     @PutMapping("/{batchId}/trainer/{trainerId}")
     public ResponseEntity<Batch> assignTrainer(
@@ -138,11 +95,6 @@ public class BatchController {
                         trainerId));
     }
 
-    // ==========================================
-    // ALLOCATE STUDENTS
-    // PUT /api/admin/batches/{batchId}/students
-    // ==========================================
-
     @PutMapping("/{batchId}/students")
     public ResponseEntity<Batch> allocateStudents(
             @PathVariable String batchId,
@@ -153,11 +105,6 @@ public class BatchController {
                         batchId,
                         studentIds));
     }
-
-    // ==========================================
-    // REMOVE STUDENT
-    // DELETE /api/admin/batches/{batchId}/students/{studentId}
-    // ==========================================
 
     @DeleteMapping("/{batchId}/students/{studentId}")
     public ResponseEntity<Batch> removeStudent(

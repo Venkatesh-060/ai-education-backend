@@ -125,17 +125,14 @@ public class AttendanceController {
         public AttendanceStats getStats(
                         @PathVariable String sessionId) {
 
-                // Get all students
                 List<User> students = userRepo.findByRole("STUDENT");
 
-                // Get attendance records only for this session
                 List<Attendance> attendanceList = attendanceRepo.findBySessionId(sessionId);
 
                 int totalStudents = students.size();
                 int present = 0;
                 int absent = 0;
 
-                // Count Present and Late
                 for (Attendance attendance : attendanceList) {
 
                         if ("Present".equalsIgnoreCase(
@@ -146,20 +143,16 @@ public class AttendanceController {
                         } else if ("Late".equalsIgnoreCase(
                                         attendance.getStatus())) {
 
-                                // Late students are considered attended
                                 present++;
                         }
                 }
 
-                // Calculate absent students
                 absent = totalStudents - present;
 
-                // Prevent negative value
                 if (absent < 0) {
                         absent = 0;
                 }
 
-                // Calculate attendance percentage
                 double percentage = 0.0;
 
                 if (totalStudents > 0) {
@@ -167,7 +160,6 @@ public class AttendanceController {
                         percentage = ((double) present / totalStudents) * 100;
                 }
 
-                // Round to 2 decimal places
                 percentage = Math.round(percentage * 100.0) / 100.0;
 
                 return new AttendanceStats(

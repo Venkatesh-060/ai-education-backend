@@ -18,18 +18,14 @@ public class NotificationRequest {
     @NotBlank(message = "Sender Role is required")
     private String senderRole;
 
-    // ALL / USER / BATCH
     @NotBlank(message = "Recipient Type is required")
     private String recipientType;
 
     private String batchId;
 
     private String sessionId;
-    // Required only when recipientType = USER
     private String recipientId;
-
-    // LOW / MEDIUM / HIGH
     @NotBlank(message = "Priority is required")
     private String priority;
-    
+
 }
